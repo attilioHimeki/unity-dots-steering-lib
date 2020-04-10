@@ -1,5 +1,5 @@
 # Unity Dots Steering Lib
-A collection of ready-made Steering Behaviours for Unity games, using Pure ECS and the Job system.
+A collection of ready-made Steering Behaviours for Unity games, using Pure ECS, the Job system and the Burst compiler.
 
 ## Work in Progress
 If you're not using Dots, take a look at the traditional version here: https://github.com/attilioHimeki/unity-steering-lib
