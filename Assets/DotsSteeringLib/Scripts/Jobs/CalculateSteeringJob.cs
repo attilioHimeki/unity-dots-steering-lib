@@ -7,7 +7,7 @@ using Unity.Transforms;
 namespace Himeki.DOTS.UnitySteeringLib
 {
     [BurstCompile]
-    struct CalculateSteeringPursueJob : IJobChunk
+    struct CalculateSteeringJob : IJobChunk
     {
         public ArchetypeChunkComponentType<Translation> translationType;
         public ArchetypeChunkComponentType<Velocity> velocityType;
@@ -33,12 +33,7 @@ namespace Himeki.DOTS.UnitySteeringLib
                 {
                     var targetPos = localToWorldFromEntity[target.entity].Value.c3.xyz;
 
-                    //Seek
-                    float3 distanceVector = targetPos - translation.Value;
-                    float3 direction = math.normalize(distanceVector);
-                    float3 desiredVelocity = direction * steeringAgentParams.maxSpeed;
-                    float3 steering = desiredVelocity - velocity.Value;
-
+                    float3 steering = steerSeek(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
                     //Apply steering
                     if (math.length(steering) > steeringAgentParams.maxForce)
                     {
@@ -57,5 +52,16 @@ namespace Himeki.DOTS.UnitySteeringLib
                 }
             }
         }
+
+        private float3 steerSeek(float3 agentPos, float3 targetPos, float agentMaxSpeed, float3 agentVelocity)
+        { 
+            float3 distanceVector = targetPos - agentPos;
+            float3 direction = math.normalize(distanceVector);
+            float3 desiredVelocity = direction * agentMaxSpeed;
+            float3 steering = desiredVelocity - agentVelocity;
+
+            return steering;
+        }
+
     }
 }
