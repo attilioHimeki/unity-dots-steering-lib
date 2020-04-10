@@ -9,6 +9,7 @@ namespace Himeki.DOTS.UnitySteeringLib
     [BurstCompile]
     struct CalculateSteeringJob : IJobChunk
     {
+        [ReadOnly] public float deltaTime;
         public ArchetypeChunkComponentType<Translation> translationType;
         public ArchetypeChunkComponentType<Velocity> velocityType;
         [ReadOnly] public ArchetypeChunkComponentType<SteeringAgentParameters> steeringAgentParametersType;
@@ -31,7 +32,7 @@ namespace Himeki.DOTS.UnitySteeringLib
 
                 if (target.entity != Entity.Null && localToWorldFromEntity.Exists(target.entity))
                 {
-                    var targetPos = localToWorldFromEntity[target.entity].Value.c3.xyz;
+                    float3 targetPos = localToWorldFromEntity[target.entity].Value.c3.xyz;
 
                     float3 steering = steerSeek(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
                     //Apply steering
@@ -40,9 +41,9 @@ namespace Himeki.DOTS.UnitySteeringLib
                         steering = math.normalize(steering) * steeringAgentParams.maxForce;
                     }
 
-                    steering /= steeringAgentParams.mass;
+                    float3 acceleration = steering / steeringAgentParams.mass;
 
-                    float3 newVelocity = velocity.Value + steering;
+                    float3 newVelocity = velocity.Value + acceleration * deltaTime;
                     if (math.length(newVelocity) > steeringAgentParams.maxSpeed)
                     {
                         newVelocity = math.normalize(newVelocity) * steeringAgentParams.maxSpeed;

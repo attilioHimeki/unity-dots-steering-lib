@@ -29,6 +29,7 @@ namespace Himeki.DOTS.UnitySteeringLib
 
             CalculateSteeringJob steeringJob = new CalculateSteeringJob()
             {
+                deltaTime = Time.DeltaTime,
                 translationType = translationType,
                 steeringAgentParametersType = steeringAgentParametersType,
                 velocityType = velocityType,
