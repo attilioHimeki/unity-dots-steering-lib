@@ -6,9 +6,9 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Jobs;
 using Himeki.DOTS.UnitySteeringLib;
 
+[AlwaysSynchronizeSystem]
 public class SteeringPlaygroundSystem : JobComponentSystem
 {
 
@@ -51,14 +51,14 @@ public class SteeringPlaygroundSystem : JobComponentSystem
 
         var playerMat = Resources.Load("PlayerMat", typeof(Material)) as Material;
         var agentsMat = Resources.Load("AgentsMat", typeof(Material)) as Material;
-        var me = Resources.Load("Cube", typeof(Mesh)) as Mesh;
+        var entityMesh = Resources.Load("Cube", typeof(Mesh)) as Mesh;
 
         Entity playerEntity = EntityManager.CreateEntity(playerArchetype);
 
         EntityManager.SetComponentData(playerEntity, new Scale { Value = 1f });
         EntityManager.SetSharedComponentData(playerEntity, new RenderMesh
         {
-            mesh = me,
+            mesh = entityMesh,
             material = playerMat,
             subMesh = 0,
             layer = 0,
@@ -83,13 +83,12 @@ public class SteeringPlaygroundSystem : JobComponentSystem
                                                                             maxForce = 5f,
                                                                             maxSpeed = 5f,
                                                                             behaviour = SteeringBehaviourId.Seek });
-            EntityManager.SetSharedComponentData(e, new RenderMesh { mesh = me,
+            EntityManager.SetSharedComponentData(e, new RenderMesh { mesh = entityMesh,
                                                                     material = agentsMat,
                                                                     subMesh = 0,
                                                                     layer = 0,
                                                                     castShadows = ShadowCastingMode.On,
                                                                     receiveShadows = true });
-
         }
 
         entities.Dispose();
@@ -108,7 +107,7 @@ public class SteeringPlaygroundSystem : JobComponentSystem
 
         if (math.length(inputVector) > 0.01f)
         {
-            return Entities.
+            Entities.
                 WithAll<PlayerControl>().
                 ForEach((Entity e, ref Translation translation) =>
             {
@@ -116,12 +115,11 @@ public class SteeringPlaygroundSystem : JobComponentSystem
 
                 float3 newPos = translation.Value + movementDirection * 35f * deltaTime;
                 translation = new Translation { Value = newPos };
-            }).Schedule(handle);
+            }).Run(); //Not worth running on worker thread
         }
-        else
-        {
-            return default;
-        }
+
+        return default;
+        
     }
 
         
