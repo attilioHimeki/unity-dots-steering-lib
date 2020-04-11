@@ -34,7 +34,16 @@ namespace Himeki.DOTS.UnitySteeringLib
                 {
                     float3 targetPos = localToWorldFromEntity[target.entity].Value.c3.xyz;
 
-                    float3 steering = steerSeek(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                    float3 steering = float3.zero;
+                    switch(steeringAgentParams.behaviour)
+                    {
+                        case SteeringBehaviourId.Seek:
+                            steering = steerSeek(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                            break;
+                        case SteeringBehaviourId.Flee:
+                            steering = steerFlee(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                            break;
+                    }
                     //Apply steering
                     if (math.length(steering) > steeringAgentParams.maxForce)
                     {
@@ -62,6 +71,21 @@ namespace Himeki.DOTS.UnitySteeringLib
             float3 steering = desiredVelocity - agentVelocity;
 
             return steering;
+        }
+
+        private static float3 steerFlee(float3 agentPos, float3 targetPos, float agentMaxSpeed, float3 agentVelocity)
+        {
+            float safeFleeDistance = 20f; //Todo: Figure out where to set this
+            float3 distanceVector = targetPos - agentPos;
+            float distance = math.length(distanceVector);
+            if(distance < safeFleeDistance)
+            {
+                float3 desiredVelocity = math.normalize(distanceVector) * agentMaxSpeed;
+                float3 steering = desiredVelocity - agentVelocity;
+                return -steering;
+            }
+
+            return -agentVelocity;
         }
 
     }
