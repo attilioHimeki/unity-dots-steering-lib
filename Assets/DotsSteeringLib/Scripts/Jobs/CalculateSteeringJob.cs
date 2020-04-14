@@ -37,11 +37,14 @@ namespace Himeki.DOTS.UnitySteeringLib
                     float3 steering = float3.zero;
                     switch(steeringAgentParams.behaviour)
                     {
+                        case SteeringBehaviourId.Idle:
+                            steering = Idle.steer();
+                            break;
                         case SteeringBehaviourId.Seek:
-                            steering = steerSeek(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                            steering = Seek.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
                             break;
                         case SteeringBehaviourId.Flee:
-                            steering = steerFlee(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                            steering = Flee.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
                             break;
                     }
                     //Apply steering
@@ -61,31 +64,6 @@ namespace Himeki.DOTS.UnitySteeringLib
                     chunkVelocities[i] = new Velocity { Value = newVelocity };
                 }
             }
-        }
-
-        private float3 steerSeek(float3 agentPos, float3 targetPos, float agentMaxSpeed, float3 agentVelocity)
-        { 
-            float3 distanceVector = targetPos - agentPos;
-            float3 direction = math.normalize(distanceVector);
-            float3 desiredVelocity = direction * agentMaxSpeed;
-            float3 steering = desiredVelocity - agentVelocity;
-
-            return steering;
-        }
-
-        private static float3 steerFlee(float3 agentPos, float3 targetPos, float agentMaxSpeed, float3 agentVelocity)
-        {
-            float safeFleeDistance = 20f; //Todo: Figure out where to set this
-            float3 distanceVector = targetPos - agentPos;
-            float distance = math.length(distanceVector);
-            if(distance < safeFleeDistance)
-            {
-                float3 desiredVelocity = math.normalize(distanceVector) * agentMaxSpeed;
-                float3 steering = desiredVelocity - agentVelocity;
-                return -steering;
-            }
-
-            return -agentVelocity;
         }
 
     }
