@@ -27,8 +27,8 @@ namespace Himeki.DOTS.UnitySteeringLib
             ArchetypeChunkComponentType<Velocity> velocityType = GetArchetypeChunkComponentType<Velocity>();
             ArchetypeChunkComponentType<TargetEntity> targetType = GetArchetypeChunkComponentType<TargetEntity>(true);
 
-            ComponentDataFromEntity<LocalToWorld> localToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>();
-            ComponentDataFromEntity<Velocity> velocityFromEntity = GetComponentDataFromEntity<Velocity>();
+            ComponentDataFromEntity<LocalToWorld> localToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>(true);
+            ComponentDataFromEntity<Velocity> velocityFromEntity = GetComponentDataFromEntity<Velocity>(true);
 
             CalculateSteeringJob steeringJob = new CalculateSteeringJob()
             {
