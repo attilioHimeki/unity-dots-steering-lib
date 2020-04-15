@@ -27,6 +27,9 @@ namespace Himeki.DOTS.UnitySteeringLib
             ArchetypeChunkComponentType<Velocity> velocityType = GetArchetypeChunkComponentType<Velocity>();
             ArchetypeChunkComponentType<TargetEntity> targetType = GetArchetypeChunkComponentType<TargetEntity>(true);
 
+            ComponentDataFromEntity<LocalToWorld> localToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>();
+            ComponentDataFromEntity<Velocity> velocityFromEntity = GetComponentDataFromEntity<Velocity>();
+
             CalculateSteeringJob steeringJob = new CalculateSteeringJob()
             {
                 deltaTime = Time.DeltaTime,
@@ -34,7 +37,8 @@ namespace Himeki.DOTS.UnitySteeringLib
                 steeringAgentParametersType = steeringAgentParametersType,
                 velocityType = velocityType,
                 targetType = targetType,
-                localToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>()
+                localToWorldFromEntity = localToWorldFromEntity,
+                velocityFromEntity = velocityFromEntity
             };
 
             UpdateEntityTranslationJob translJob = new UpdateEntityTranslationJob()

@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Himeki.DOTS.UnitySteeringLib
 {
@@ -15,6 +16,7 @@ namespace Himeki.DOTS.UnitySteeringLib
         [ReadOnly] public ArchetypeChunkComponentType<SteeringAgentParameters> steeringAgentParametersType;
         [ReadOnly] public ArchetypeChunkComponentType<TargetEntity> targetType;
         [ReadOnly] public ComponentDataFromEntity<LocalToWorld> localToWorldFromEntity;
+        [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentDataFromEntity<Velocity> velocityFromEntity;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
@@ -27,12 +29,13 @@ namespace Himeki.DOTS.UnitySteeringLib
             {
                 var translation = chunkTranslations[i];
                 var steeringAgentParams = chunkSteeringAgentParameters[i];
-                var velocity = chunkVelocities[i];
                 var target = chunkTargets[i];
+                var velocity = chunkVelocities[i];
 
                 if (target.entity != Entity.Null && localToWorldFromEntity.Exists(target.entity))
                 {
                     float3 targetPos = localToWorldFromEntity[target.entity].Value.c3.xyz;
+                    float3 targetVelocity = velocityFromEntity[target.entity].Value;
 
                     float3 steering = float3.zero;
                     switch(steeringAgentParams.behaviour)
@@ -42,6 +45,12 @@ namespace Himeki.DOTS.UnitySteeringLib
                             break;
                         case SteeringBehaviourId.Seek:
                             steering = Seek.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                            break;
+                        case SteeringBehaviourId.Arrival:
+                            steering = Arrival.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
+                            break;
+                        case SteeringBehaviourId.Pursue:
+                            steering = Pursue.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value, targetVelocity);
                             break;
                         case SteeringBehaviourId.Flee:
                             steering = Flee.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
