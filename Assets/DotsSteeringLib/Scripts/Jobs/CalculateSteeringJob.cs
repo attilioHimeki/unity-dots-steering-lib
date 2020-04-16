@@ -55,6 +55,9 @@ namespace Himeki.DOTS.UnitySteeringLib
                         case SteeringBehaviourId.Flee:
                             steering = Flee.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value);
                             break;
+                        case SteeringBehaviourId.Evade:
+                            steering = Evade.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value, targetVelocity);
+                            break;
                     }
                     //Apply steering
                     if (math.length(steering) > steeringAgentParams.maxForce)
