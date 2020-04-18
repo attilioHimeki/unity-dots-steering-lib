@@ -9,11 +9,13 @@ namespace Himeki.DOTS.UnitySteeringLib
     [AlwaysSynchronizeSystem]
     public class SteeringSystem : JobComponentSystem
     {
-        private EntityQuery agentsGroup;
+        private EntityQuery agentsQuery;
+        private EntityQuery obstaclesQuery;
 
         protected override void OnCreate()
         {
-            agentsGroup = GetEntityQuery(ComponentType.ReadOnly<SteeringAgentParameters>(), ComponentType.ReadOnly<TargetEntity>());
+            agentsQuery = GetEntityQuery(ComponentType.ReadOnly<SteeringAgentParameters>(), ComponentType.ReadOnly<TargetEntity>());
+            obstaclesQuery = GetEntityQuery(ComponentType.ReadOnly<Obstacle>(), ComponentType.ReadOnly<Translation>());
         }
 
         protected override void OnDestroy()
@@ -30,6 +32,9 @@ namespace Himeki.DOTS.UnitySteeringLib
             ComponentDataFromEntity<LocalToWorld> localToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>(true);
             ComponentDataFromEntity<Velocity> velocityFromEntity = GetComponentDataFromEntity<Velocity>(true);
 
+            NativeArray<Translation> obstaclesTranslations = obstaclesQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            NativeArray<Obstacle> obstacles = obstaclesQuery.ToComponentDataArray<Obstacle>(Allocator.TempJob);
+
             CalculateSteeringJob steeringJob = new CalculateSteeringJob()
             {
                 deltaTime = Time.DeltaTime,
@@ -38,7 +43,9 @@ namespace Himeki.DOTS.UnitySteeringLib
                 velocityType = velocityType,
                 targetType = targetType,
                 localToWorldFromEntity = localToWorldFromEntity,
-                velocityFromEntity = velocityFromEntity
+                velocityFromEntity = velocityFromEntity,
+                obstaclesTranslations = obstaclesTranslations,
+                obstacles = obstacles
             };
 
             UpdateEntityTranslationJob translJob = new UpdateEntityTranslationJob()
@@ -47,9 +54,9 @@ namespace Himeki.DOTS.UnitySteeringLib
                 translationType = translationType,
                 velocityType = velocityType,
             };
-            JobHandle calculateSteeringJobHandle = steeringJob.Schedule(agentsGroup);
 
-            JobHandle updateTranslationJobHandle = translJob.Schedule(agentsGroup, calculateSteeringJobHandle);
+            JobHandle calculateSteeringJobHandle = steeringJob.Schedule(agentsQuery);
+            JobHandle updateTranslationJobHandle = translJob.Schedule(agentsQuery, calculateSteeringJobHandle);
 
             return updateTranslationJobHandle;
         }
