@@ -1,9 +1,12 @@
 ﻿using Unity.Mathematics;
 
-public static class Idle
+namespace Himeki.DOTS.UnitySteeringLib
 {
-    public static float3 steer()
+    public static class Idle
     {
-        return float3.zero;
+        public static float3 steer()
+        {
+            return float3.zero;
+        }
     }
 }

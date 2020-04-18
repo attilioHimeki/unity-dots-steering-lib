@@ -1,24 +1,26 @@
 ﻿using Unity.Mathematics;
 
-public static class Evade
+namespace Himeki.DOTS.UnitySteeringLib
 {
-
-    public static float3 steer(float3 agentPos, float3 targetPos, float agentMaxSpeed, float3 agentVelocity, float3 targetVelocity)
+    public static class Evade
     {
-        float safeDistance = 10f;
 
-        float3 distanceVector = targetPos - agentPos;
-        float distance = math.length(distanceVector);
-
-        if (distance < safeDistance)
+        public static float3 steer(float3 agentPos, float3 targetPos, float agentMaxSpeed, float3 agentVelocity, float3 targetVelocity)
         {
-            return -Pursue.steer(agentPos, targetPos, agentMaxSpeed, agentVelocity, targetVelocity);
-        }
-        else
-        {
-            return -agentVelocity;
-        }
+            float safeDistance = 10f;
 
+            float3 distanceVector = targetPos - agentPos;
+            float distance = math.length(distanceVector);
+
+            if (distance < safeDistance)
+            {
+                return -Pursue.steer(agentPos, targetPos, agentMaxSpeed, agentVelocity, targetVelocity);
+            }
+            else
+            {
+                return -agentVelocity;
+            }
+
+        }
     }
-
 }
