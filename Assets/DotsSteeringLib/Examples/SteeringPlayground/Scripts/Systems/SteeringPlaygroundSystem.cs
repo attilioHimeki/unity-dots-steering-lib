@@ -57,8 +57,8 @@ public class SteeringPlaygroundSystem : JobComponentSystem
         );
 
         playerEntity = CreatePlayer();
-        CreateAgents(2000);
-        CreateObstacles(10);
+        CreateAgents(4000);
+        CreateObstacles(20);
     }
 
     public Entity CreatePlayer()
@@ -84,71 +84,87 @@ public class SteeringPlaygroundSystem : JobComponentSystem
 
     public void CreateAgents(int amount)
     {
-        float randomSpreadRadius = 40f;
-
-        var agentsMat = Resources.Load("AgentsMat", typeof(Material)) as Material;
-        var entityMesh = Resources.Load("Cube", typeof(Mesh)) as Mesh;
-
-        NativeArray<Entity> entities = new NativeArray<Entity>(amount, Allocator.Temp);
-        EntityManager.CreateEntity(agentArchetype, entities);
-
-        for (int i = 0; i < amount; i++)
+        if (amount > 0)
         {
-            var e = entities[i];
-            EntityManager.SetComponentData(e, new Scale { Value = 1f });
-            EntityManager.SetComponentData(e, new Translation { Value = new float3(UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius),
-                                                                        0f,
-                                                                        UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius)) });
-            EntityManager.SetComponentData(e, new TargetEntity { entity = playerEntity });
-            EntityManager.SetComponentData(e, new SteeringAgentParameters { mass = 1f,
-                                                                            radius = 1f,
-                                                                            maxForce = 25f,
-                                                                            maxSpeed = 20f,
-                                                                            behaviour = SteeringBehaviourId.Pursue });
-            EntityManager.SetSharedComponentData(e, new RenderMesh { mesh = entityMesh,
-                                                                    material = agentsMat,
-                                                                    subMesh = 0,
-                                                                    layer = 0,
-                                                                    castShadows = ShadowCastingMode.On,
-                                                                    receiveShadows = true });
-        }
+            float randomSpreadRadius = 90f;
 
-        entities.Dispose();
+            var agentsMat = Resources.Load("AgentsMat", typeof(Material)) as Material;
+            var entityMesh = Resources.Load("Cube", typeof(Mesh)) as Mesh;
+
+            NativeArray<Entity> entities = new NativeArray<Entity>(amount, Allocator.Temp);
+            EntityManager.CreateEntity(agentArchetype, entities);
+
+            for (int i = 0; i < amount; i++)
+            {
+                var e = entities[i];
+                EntityManager.SetComponentData(e, new Scale { Value = 1f });
+                EntityManager.SetComponentData(e, new Translation
+                {
+                    Value = new float3(UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius),
+                                                                            0f,
+                                                                            UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius))
+                });
+                EntityManager.SetComponentData(e, new TargetEntity { entity = playerEntity });
+                EntityManager.SetComponentData(e, new SteeringAgentParameters
+                {
+                    mass = 1f,
+                    radius = 1f,
+                    maxForce = 25f,
+                    maxSpeed = 20f,
+                    behaviour = SteeringBehaviourId.Evade,
+                    avoidObstacles = true
+                });
+                EntityManager.SetSharedComponentData(e, new RenderMesh
+                {
+                    mesh = entityMesh,
+                    material = agentsMat,
+                    subMesh = 0,
+                    layer = 0,
+                    castShadows = ShadowCastingMode.On,
+                    receiveShadows = true
+                });
+            }
+
+            entities.Dispose();
+        }
     }
 
     public void CreateObstacles(int amount)
     {
-        float randomSpreadRadius = 40f;
-
-        var obstaclesMat = Resources.Load("ObstaclesMat", typeof(Material)) as Material;
-        var entityMesh = Resources.Load("Cube", typeof(Mesh)) as Mesh;
-
-        NativeArray<Entity> entities = new NativeArray<Entity>(amount, Allocator.Temp);
-        EntityManager.CreateEntity(obstacleArchetype, entities);
-
-        for (int i = 0; i < amount; i++)
+        if (amount > 0)
         {
-            var e = entities[i];
-            EntityManager.SetComponentData(e, new Scale { Value = 2f });
-            EntityManager.SetComponentData(e, new Obstacle { radius = 4f });
-            EntityManager.SetComponentData(e, new Translation
-            {
-                Value = new float3(UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius),
-                                                                        0f,
-                                                                        UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius))
-            });
-            EntityManager.SetSharedComponentData(e, new RenderMesh
-            {
-                mesh = entityMesh,
-                material = obstaclesMat,
-                subMesh = 0,
-                layer = 0,
-                castShadows = ShadowCastingMode.On,
-                receiveShadows = true
-            });
-        }
+            float randomSpreadRadius = 60f;
 
-        entities.Dispose();
+            var obstaclesMat = Resources.Load("ObstaclesMat", typeof(Material)) as Material;
+            var entityMesh = Resources.Load("Cube", typeof(Mesh)) as Mesh;
+
+            NativeArray<Entity> entities = new NativeArray<Entity>(amount, Allocator.Temp);
+            EntityManager.CreateEntity(obstacleArchetype, entities);
+
+            for (int i = 0; i < amount; i++)
+            {
+                var e = entities[i];
+                EntityManager.SetComponentData(e, new Scale { Value = 2f });
+                EntityManager.SetComponentData(e, new Obstacle { radius = 20f });
+                EntityManager.SetComponentData(e, new Translation
+                {
+                    Value = new float3(UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius),
+                                                                            0f,
+                                                                            UnityEngine.Random.Range(-randomSpreadRadius, randomSpreadRadius))
+                });
+                EntityManager.SetSharedComponentData(e, new RenderMesh
+                {
+                    mesh = entityMesh,
+                    material = obstaclesMat,
+                    subMesh = 0,
+                    layer = 0,
+                    castShadows = ShadowCastingMode.On,
+                    receiveShadows = true
+                });
+            }
+
+            entities.Dispose();
+        }
     }
 
 
