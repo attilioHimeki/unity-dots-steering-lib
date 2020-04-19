@@ -57,7 +57,7 @@ public class SteeringPlaygroundSystem : JobComponentSystem
         );
 
         playerEntity = CreatePlayer();
-        CreateAgents(4000);
+        CreateAgents(5000);
         CreateObstacles(20);
     }
 
@@ -184,12 +184,16 @@ public class SteeringPlaygroundSystem : JobComponentSystem
         {
             Entities.
                 WithAll<PlayerControl>().
-                ForEach((Entity e, ref Translation translation) =>
+                ForEach((Entity e, ref Translation translation, ref Rotation rotation, ref LocalToWorld localToWorld) =>
             {
                 float3 movementDirection = math.normalize(inputVector);
 
                 float3 newPos = translation.Value + movementDirection * 35f * deltaTime;
                 translation = new Translation { Value = newPos };
+
+                quaternion newRotation = quaternion.LookRotation(movementDirection, localToWorld.Up);
+
+                rotation = new Rotation { Value = newRotation };
             }).Run(); //Not worth running on worker thread
         }
 

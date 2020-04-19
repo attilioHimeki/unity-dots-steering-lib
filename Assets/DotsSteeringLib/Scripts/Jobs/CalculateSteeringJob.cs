@@ -40,14 +40,16 @@ namespace Himeki.DOTS.UnitySteeringLib
 
             for (var i = 0; i < chunk.Count; i++)
             {
-                var translation = chunkTranslations[i];
-                var steeringAgentParams = chunkSteeringAgentParameters[i];
-                var target = chunkTargets[i];
-                var velocity = chunkVelocities[i];
+                Translation translation = chunkTranslations[i];
+                SteeringAgentParameters steeringAgentParams = chunkSteeringAgentParameters[i];
+                TargetEntity target = chunkTargets[i];
+                Velocity velocity = chunkVelocities[i];
 
                 if (target.entity != Entity.Null && localToWorldFromEntity.Exists(target.entity))
                 {
-                    float3 targetPos = localToWorldFromEntity[target.entity].Value.c3.xyz;
+                    LocalToWorld targetLocalToWorld = localToWorldFromEntity[target.entity];
+                    float3 targetPos = targetLocalToWorld.Value.c3.xyz;
+                    float3 targetForward = targetLocalToWorld.Forward;
                     float3 targetVelocity = velocityFromEntity[target.entity].Value;
 
                     float3 steering = float3.zero;
@@ -70,6 +72,9 @@ namespace Himeki.DOTS.UnitySteeringLib
                             break;
                         case SteeringBehaviourId.Evade:
                             steering = Evade.steer(translation.Value, targetPos, steeringAgentParams.maxSpeed, velocity.Value, targetVelocity);
+                            break;
+                        case SteeringBehaviourId.Follow:
+                            steering = Follow.steer(translation.Value, targetPos, targetForward, steeringAgentParams.maxSpeed, velocity.Value);
                             break;
                     }
 

@@ -25,9 +25,11 @@ namespace Himeki.DOTS.UnitySteeringLib
         protected override unsafe JobHandle OnUpdate(JobHandle handle)
         {
             ArchetypeChunkComponentType<Translation> translationType = GetArchetypeChunkComponentType<Translation>();
+            ArchetypeChunkComponentType<Rotation> rotationType = GetArchetypeChunkComponentType<Rotation>();
             ArchetypeChunkComponentType<SteeringAgentParameters> steeringAgentParametersType = GetArchetypeChunkComponentType<SteeringAgentParameters>(true);
             ArchetypeChunkComponentType<Velocity> velocityType = GetArchetypeChunkComponentType<Velocity>();
             ArchetypeChunkComponentType<TargetEntity> targetType = GetArchetypeChunkComponentType<TargetEntity>(true);
+            ArchetypeChunkComponentType<LocalToWorld> localToWorldType = GetArchetypeChunkComponentType<LocalToWorld>(true);
 
             ComponentDataFromEntity<LocalToWorld> localToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>(true);
             ComponentDataFromEntity<Velocity> velocityFromEntity = GetComponentDataFromEntity<Velocity>(true);
@@ -52,6 +54,8 @@ namespace Himeki.DOTS.UnitySteeringLib
             {
                 deltaTime = Time.DeltaTime,
                 translationType = translationType,
+                localToWorldType = localToWorldType,
+                rotationType = rotationType,
                 velocityType = velocityType,
             };
 
